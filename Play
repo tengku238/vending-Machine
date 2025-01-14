@@ -1,0 +1,85 @@
+class Item:
+    def __init__(self, name, price, stock):
+        # Inisialisasi item dengan nama, harga, dan stok
+        self.name = name
+        self.price = price
+        self.stock = stock
+
+
+class VendingMachine:
+    def __init__(self):
+        # Buat daftar item yang tersedia di mesin penjual otomatis
+        self.items = [
+            Item("Teh", 0.50, 2),
+            Item("Kopi", 1.00, 10),
+            Item("Coca-Cola", 1.50, 10),
+            Item("Jus Jeruk", 1.00, 0)
+        ]
+        self.total_inserted = 0.00  # Total uang yang dimasukkan oleh pengguna
+
+    def display_items(self):
+        # Tampilkan item yang tersedia kepada pengguna
+        print("\nSelamat Datang DiVending Mesin Minuman")
+        print("Item yang tersedia:")
+        for index, item in enumerate(self.items, start=1):
+            print(f"[{index}] {item.name} - ${item.price:.2f} (Stok: {item.stock})")
+
+    def insert_money(self, amount):
+        # Masukkan uang ke dalam mesin penjual otomatis
+        if amount <= 0:
+            print("Silakan masukkan jumlah yang valid.")
+            return
+        self.total_inserted += amount
+        print(f"Total yang dimasukkan: ${self.total_inserted:.2f}")
+
+    def select_item(self, item_index):
+        # Pilih item berdasarkan input pengguna
+        if item_index < 1 or item_index > len(self.items):
+            print("Pemilihan tidak valid. Silakan coba lagi.")
+            return None
+        item = self.items[item_index - 1]
+        if item.stock <= 0:
+            print(f"Maaf, {item.name} habis.")
+            return None
+        return item
+
+    def process_transaction(self, item):
+        # Proses transaksi untuk item yang dipilih
+        if self.total_inserted < item.price:
+            print(f"Dana tidak cukup. Silakan masukkan ${item.price - self.total_inserted:.2f} lebih.")
+            return False
+        change = self.total_inserted - item.price
+        item.stock -= 1
+        self.total_inserted = 0  # Reset total setelah pembelian
+        if change > 0:
+            print(f"Terima kasih atas pembelian Anda! Berikut adalah {item.name} dan kembalian Anda: ${change:.2f}.")
+        else:
+            print(f"Terima kasih atas pembelian Anda! Nikmati {item.name} Anda.")
+        return True
+
+
+def main():
+    vending_machine = VendingMachine()
+    while True:
+        vending_machine.display_items()
+        try:
+            user_selection = int(input("Pilih Menu Minuman (or 0 to exit): "))
+            if user_selection == 0:
+                print("Terima kasih telah menggunakan mesin penjual otomatis. Selamat tinggal!")
+                break
+            item = vending_machine.select_item(user_selection)
+            if item:
+                while True:
+                    try:
+                        money_input = float(input("Masukkan uang: $ "))
+                        vending_machine.insert_money(money_input)
+                        if vending_machine.process_transaction(item):
+                            break
+                    except ValueError:
+                        print("Masukan tidak valid. Silakan masukkan angka yang valid.")
+        except ValueError:
+            print("Masukan tidak valid. Pilih Nomor.")
+
+
+if __name__ == "__main__":
+    main()
